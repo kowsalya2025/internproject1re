@@ -1,0 +1,472 @@
+<!-- ==========================================
+     TEMPLATE_DETAIL.HTML - Save as: marketplace/templates/marketplace/template_detail.html
+     ========================================== -->
+{% extends 'marketplace/base.html' %}
+{% load static %}
+
+{% block title %}{{ template.name }} - Vetri Market{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-section {
+        padding: 80px 0;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 450px;
+        gap: 60px;
+        margin-bottom: 80px;
+    }
+
+    .preview-container {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        border: 2px solid #f1f5f9;
+    }
+
+    .preview-image {
+        width: 100%;
+        height: 600px;
+        object-fit: cover;
+    }
+
+    .preview-actions {
+        padding: 30px;
+        display: flex;
+        gap: 16px;
+    }
+
+    .btn-preview {
+        flex: 1;
+        padding: 16px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-preview:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.4);
+    }
+
+    .info-container {
+        position: sticky;
+        top: 104px;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        border: 2px solid #f1f5f9;
+    }
+
+    .info-header {
+        margin-bottom: 32px;
+    }
+
+    .info-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(254, 202, 87, 0.1) 100%);
+        color: #ff6b6b;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        border: 2px solid rgba(255, 107, 107, 0.2);
+    }
+
+    .info-title {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: #0f172a;
+        margin-bottom: 16px;
+        line-height: 1.2;
+    }
+
+    .info-rating {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.1rem;
+        color: #64748b;
+        margin-bottom: 24px;
+    }
+
+    .info-price {
+        font-size: 3.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 32px;
+    }
+
+    .info-description {
+        color: #64748b;
+        line-height: 1.8;
+        margin-bottom: 32px;
+        font-size: 1.05rem;
+    }
+
+    .info-features {
+        margin-bottom: 32px;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 0;
+        color: #334155;
+        font-weight: 500;
+    }
+
+    .feature-icon {
+        width: 24px;
+        height: 24px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.7rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .btn-action {
+        padding: 18px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1.05rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        text-decoration: none;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        color: white;
+        box-shadow: 0 8px 24px rgba(255, 107, 107, 0.35);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(255, 107, 107, 0.45);
+    }
+
+    .btn-secondary {
+        background: #f8fafc;
+        color: #334155;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+        background: #f1f5f9;
+    }
+
+    .tabs {
+        margin-top: 80px;
+    }
+
+    .tab-buttons {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 40px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .tab-btn {
+        padding: 16px 32px;
+        background: none;
+        border: none;
+        font-weight: 600;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.3s;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+    }
+
+    .tab-btn.active {
+        color: #ff6b6b;
+        border-bottom-color: #ff6b6b;
+    }
+
+    .tab-content {
+        background: white;
+        padding: 40px;
+        border-radius: 24px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+
+    .review-card {
+        padding: 30px;
+        background: #f8fafc;
+        border-radius: 16px;
+        margin-bottom: 20px;
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .review-author {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    .review-rating {
+        color: #feca57;
+    }
+
+    .review-text {
+        color: #64748b;
+        line-height: 1.7;
+    }
+
+    @media (max-width: 1024px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .info-container {
+            position: static;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="detail-section">
+    <div class="container">
+        <div class="detail-grid">
+            <div class="preview-container">
+                <img src="{{ template.get_display_image }}" alt="{{ template.name }}" class="preview-image">
+                
+                <div class="preview-actions">
+                    <a href="{% url 'marketplace:preview_template' template.slug %}" class="btn-preview" target="_blank">
+                        <i class="fas fa-eye"></i> Live Preview
+                    </a>
+                </div>
+            </div>
+
+            <div class="info-container">
+                <div class="info-card">
+                    <div class="info-header">
+                        {% if template.is_featured %}
+                        <span class="info-badge">⭐ Featured</span>
+                        {% endif %}
+                        
+                        <h1 class="info-title">{{ template.name }}</h1>
+                        
+                        <div class="info-rating">
+                            <span><i class="fas fa-star" style="color: #feca57;"></i> {{ template.rating }} ({{ template.total_reviews }} reviews)</span>
+                            <span>•</span>
+                            <span><i class="fas fa-download"></i> {{ template.downloads }} downloads</span>
+                        </div>
+
+                        <div class="info-price">
+                            {% if template.is_free %}Free{% else %}₹{{ template.price }}{% endif %}
+                        </div>
+                    </div>
+
+                    <p class="info-description">{{ template.description }}</p>
+
+                    <div class="info-features">
+                        <div class="feature-item">
+                            <div class="feature-icon"><i class="fas fa-check"></i></div>
+                            <span>Fully Responsive Design</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon"><i class="fas fa-check"></i></div>
+                            <span>Clean & Modern Code</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon"><i class="fas fa-check"></i></div>
+                            <span>Easy Customization</span>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon"><i class="fas fa-check"></i></div>
+                            <span>Free Updates & Support</span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        {% if purchased %}
+                        <a href="{% url 'marketplace:download_template' template.id %}" class="btn-action btn-primary">
+                            <i class="fas fa-download"></i> Download Template
+                        </a>
+                        {% else %}
+                            {% if user.is_authenticated %}
+                                {% if in_cart %}
+                                <a href="{% url 'marketplace:cart_view' %}" class="btn-action btn-primary">
+                                    <i class="fas fa-shopping-cart"></i> View in Cart
+                                </a>
+                                {% else %}
+                                <a href="{% url 'marketplace:add_to_cart' template.id %}" class="btn-action btn-primary">
+                                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                                </a>
+                                {% endif %}
+
+                                {% if in_wishlist %}
+                                <a href="{% url 'marketplace:remove_from_wishlist' template.id %}" class="btn-action btn-secondary">
+                                    <i class="fas fa-heart"></i> Remove from Wishlist
+                                </a>
+                                {% else %}
+                                <a href="{% url 'marketplace:add_to_wishlist' template.id %}" class="btn-action btn-secondary">
+                                    <i class="far fa-heart"></i> Add to Wishlist
+                                </a>
+                                {% endif %}
+                            {% else %}
+                            <a href="{% url 'marketplace:login' %}?next={{ request.path }}" class="btn-action btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Login to Purchase
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="showTab('reviews')">Reviews</button>
+                <button class="tab-btn" onclick="showTab('details')">Details</button>
+            </div>
+
+           <div class="tab-content" id="reviews-tab">
+    <h3 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 30px;">Customer Reviews</h3>
+    
+    <!-- Add Review Form (only if purchased and not reviewed yet) -->
+    {% if purchased and not user_review %}
+    <div class="review-form-card" style="background: #f8fafc; padding: 30px; border-radius: 16px; margin-bottom: 30px;">
+        <h4 style="font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-bottom: 20px;">Write a Review</h4>
+        <form method="POST" action="{% url 'marketplace:add_review' template.id %}">
+            {% csrf_token %}
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #334155; margin-bottom: 10px;">Rating</label>
+                <div class="star-rating" style="display: flex; gap: 8px; font-size: 2rem;">
+                    <input type="radio" name="rating" value="1" id="star1" style="display: none;">
+                    <label for="star1" class="star" style="cursor: pointer; color: #e2e8f0;" onclick="setRating(1)">★</label>
+                    
+                    <input type="radio" name="rating" value="2" id="star2" style="display: none;">
+                    <label for="star2" class="star" style="cursor: pointer; color: #e2e8f0;" onclick="setRating(2)">★</label>
+                    
+                    <input type="radio" name="rating" value="3" id="star3" style="display: none;">
+                    <label for="star3" class="star" style="cursor: pointer; color: #e2e8f0;" onclick="setRating(3)">★</label>
+                    
+                    <input type="radio" name="rating" value="4" id="star4" style="display: none;">
+                    <label for="star4" class="star" style="cursor: pointer; color: #e2e8f0;" onclick="setRating(4)">★</label>
+                    
+                    <input type="radio" name="rating" value="5" id="star5" checked style="display: none;">
+                    <label for="star5" class="star" style="cursor: pointer; color: #feca57;" onclick="setRating(5)">★</label>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-weight: 600; color: #334155; margin-bottom: 10px;">Your Review</label>
+                <textarea name="comment" rows="5" required 
+                    style="width: 100%; padding: 15px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; font-family: inherit; resize: vertical;"
+                    placeholder="Share your experience with this template..."></textarea>
+            </div>
+            
+            <button type="submit" class="btn-action btn-primary" style="width: auto; padding: 14px 32px;">
+                <i class="fas fa-paper-plane"></i> Submit Review
+            </button>
+        </form>
+    </div>
+    {% elif user_review %}
+    <div style="background: #dcfce7; padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 2px solid #86efac;">
+        <p style="color: #166534; font-weight: 600;">✓ You have already reviewed this template</p>
+    </div>
+    {% elif not purchased %}
+    <div style="background: #fef3c7; padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 2px solid #fde047;">
+        <p style="color: #854d0e; font-weight: 600;">Purchase this template to leave a review</p>
+    </div>
+    {% endif %}
+    
+    <!-- Reviews List -->
+    {% if reviews %}
+        {% for review in reviews %}
+        <div class="review-card">
+            <div class="review-header">
+                <span class="review-author">{{ review.user.username }}</span>
+                <span class="review-rating">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= review.rating %}
+                        <i class="fas fa-star"></i>
+                        {% else %}
+                        <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </span>
+            </div>
+            <p class="review-text">{{ review.comment }}</p>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 10px;">{{ review.created_at|date:"F d, Y" }}</p>
+            
+            {% if review.user == user %}
+            <form method="POST" action="{% url 'marketplace:delete_review' review.id %}" style="margin-top: 15px;">
+                {% csrf_token %}
+                <button type="submit" style="background: #fee2e2; color: #dc2626; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
+                    <i class="fas fa-trash"></i> Delete Review
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color: #64748b; text-align: center; padding: 40px;">No reviews yet. Be the first to review!</p>
+    {% endif %}
+</div>
+
+<script>
+function setRating(rating) {
+    // Remove all star colors
+    document.querySelectorAll('.star').forEach(star => {
+        star.style.color = '#e2e8f0';
+    });
+    
+    // Color stars up to selected rating
+    for(let i = 1; i <= rating; i++) {
+        document.querySelector(`label[for="star${i}"]`).style.color = '#feca57';
+        document.getElementById(`star${i}`).checked = true;
+    }
+}
+
+// Initialize with 5 stars selected by default
+document.addEventListener('DOMContentLoaded', function() {
+    setRating(5);
+});
+</script>
+{% endblock %}

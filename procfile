@@ -1,0 +1,1 @@
+gunicorn vetri_marketplace.wsgi:application

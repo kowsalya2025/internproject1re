@@ -1,0 +1,319 @@
+<!-- ==========================================
+     TEMPLATE_LIST.HTML - Save as: marketplace/templates/marketplace/template_list.html
+     ========================================== -->
+{% extends 'marketplace/base.html' %}
+{% load static %}
+
+{% block title %}Browse Templates - Vetri Market{% endblock %}
+
+{% block extra_css %}
+<style>
+    .templates-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        padding: 80px 0 60px;
+        color: white;
+        text-align: center;
+    }
+
+    .templates-hero h1 {
+        font-size: 3.5rem;
+        font-weight: 900;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #ffffff 0%, #feca57 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .templates-section {
+        padding: 80px 0;
+    }
+
+    .filters-bar {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        margin-bottom: 50px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-label {
+        display: block;
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+
+    .filter-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: #ff6b6b;
+    }
+
+    .template-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 40px;
+    }
+
+    .template-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.4s;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        border: 2px solid #f1f5f9;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .template-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 25px 60px rgba(255, 107, 107, 0.2);
+        border-color: rgba(255, 107, 107, 0.3);
+    }
+
+    .template-image {
+        position: relative;
+        padding-top: 65%;
+        overflow: hidden;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    }
+
+    .template-image img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s;
+    }
+
+    .template-card:hover .template-image img {
+        transform: scale(1.08);
+    }
+
+    .template-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        color: white;
+        padding: 8px 18px;
+        border-radius: 25px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+        text-transform: uppercase;
+    }
+
+    .template-info {
+        padding: 28px;
+    }
+
+    .template-title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 12px;
+    }
+
+    .template-description {
+        color: #64748b;
+        margin-bottom: 20px;
+        line-height: 1.6;
+    }
+
+    .template-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        border-top: 2px solid #f1f5f9;
+    }
+
+    .template-price {
+        font-size: 1.8rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .template-stats {
+        display: flex;
+        gap: 16px;
+        font-size: 0.9rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 60px;
+    }
+
+    .page-btn {
+        padding: 12px 24px;
+        border-radius: 12px;
+        background: white;
+        border: 2px solid #e2e8f0;
+        color: #334155;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .page-btn:hover, .page-btn.active {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        color: white;
+        border-color: transparent;
+    }
+
+    .no-results {
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+    .no-results-icon {
+        font-size: 5rem;
+        margin-bottom: 24px;
+        opacity: 0.3;
+    }
+
+    .no-results-text {
+        font-size: 1.5rem;
+        color: #64748b;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="templates-hero">
+    <div class="container">
+        <h1>Browse Templates</h1>
+        <p style="font-size: 1.2rem; opacity: 0.9;">Discover premium templates for your next project</p>
+    </div>
+</section>
+
+<section class="templates-section">
+    <div class="container">
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label class="filter-label">Category</label>
+                <select class="filter-select" onchange="window.location.href='?category=' + this.value">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.slug }}" {% if current_category == category.slug %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Price</label>
+                <select class="filter-select" onchange="window.location.href='?price=' + this.value">
+                    <option value="">All Prices</option>
+                    <option value="free">Free</option>
+                    <option value="paid">Paid</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label class="filter-label">Sort By</label>
+                <select class="filter-select" onchange="window.location.href='?sort=' + this.value">
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest</option>
+                    <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>Popular</option>
+                    <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>Top Rated</option>
+                    <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                </select>
+            </div>
+        </div>
+
+        {% if templates %}
+        <div class="template-grid">
+            {% for template in templates %}
+<a href="{% url 'marketplace:template_detail' template.slug %}" class="template-card">
+    <div class="template-image">
+    <img src="{{ template.get_display_image }}" alt="{{ template.name }}">
+    
+    {% if template.is_featured %}
+    <span class="template-badge">Featured</span>
+    {% elif template.is_free %}
+    <span class="template-badge" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">Free</span>
+    {% endif %}
+</div>
+    <div class="template-info">
+        <h3 class="template-title">{{ template.name }}</h3>
+        <p class="template-description">{{ template.description|truncatewords:15 }}</p>
+        <div class="template-meta">
+            <div class="template-price">
+                {% if template.is_free %}Free{% else %}₹{{ template.price }}{% endif %}
+            </div>
+            <div class="template-stats">
+                <span><i class="fas fa-star" style="color: #feca57;"></i> {{ template.rating }}</span>
+                <span><i class="fas fa-download"></i> {{ template.downloads }}</span>
+            </div>
+        </div>
+    </div>
+</a>
+{% endfor %}
+        </div>
+
+        {% if templates.has_other_pages %}
+        <div class="pagination">
+            {% if templates.has_previous %}
+            <a href="?page={{ templates.previous_page_number }}" class="page-btn">
+                <i class="fas fa-chevron-left"></i> Previous
+            </a>
+            {% endif %}
+
+            {% for num in templates.paginator.page_range %}
+            {% if templates.number == num %}
+            <a href="?page={{ num }}" class="page-btn active">{{ num }}</a>
+            {% elif num > templates.number|add:'-3' and num < templates.number|add:'3' %}
+            <a href="?page={{ num }}" class="page-btn">{{ num }}</a>
+            {% endif %}
+            {% endfor %}
+
+            {% if templates.has_next %}
+            <a href="?page={{ templates.next_page_number }}" class="page-btn">
+                Next <i class="fas fa-chevron-right"></i>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="no-results">
+            <div class="no-results-icon">🔍</div>
+            <p class="no-results-text">No templates found. Try adjusting your filters.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

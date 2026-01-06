@@ -1,0 +1,460 @@
+<!-- ==========================================
+     WISHLIST.HTML - Save as: marketplace/templates/marketplace/wishlist.html
+     Complete Wishlist with Modern Design
+     ========================================== -->
+{% extends 'marketplace/base.html' %}
+{% load static %}
+
+{% block title %}My Wishlist - Vetri Market{% endblock %}
+
+{% block extra_css %}
+<style>
+    .wishlist-section {
+        padding: 80px 0;
+        min-height: calc(100vh - 84px);
+        background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+    }
+
+    .wishlist-header {
+        text-align: center;
+        margin-bottom: 60px;
+    }
+
+    .wishlist-icon {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: white;
+        margin: 0 auto 24px;
+        box-shadow: 0 15px 40px rgba(255, 107, 107, 0.3);
+        animation: heartbeat 2s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .wishlist-title {
+        font-size: 3.5rem;
+        font-weight: 900;
+        color: #0f172a;
+        margin-bottom: 12px;
+        letter-spacing: -2px;
+    }
+
+    .wishlist-subtitle {
+        font-size: 1.1rem;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .wishlist-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 40px;
+    }
+
+    .wishlist-card {
+        background: white;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        border: 2px solid #f1f5f9;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+
+    .wishlist-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #ff6b6b 0%, #feca57 100%);
+        transform: scaleX(0);
+        transition: transform 0.4s;
+    }
+
+    .wishlist-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .wishlist-card:hover {
+        transform: translateY(-16px);
+        box-shadow: 0 25px 70px rgba(255, 107, 107, 0.2);
+        border-color: rgba(255, 107, 107, 0.3);
+    }
+
+    .wishlist-image-container {
+        position: relative;
+        padding-top: 65%;
+        overflow: hidden;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    }
+
+    .wishlist-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .wishlist-card:hover .wishlist-image {
+        transform: scale(1.1);
+    }
+
+    .wishlist-badge {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 8px 20px;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #ff6b6b;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        border: 2px solid rgba(255, 107, 107, 0.2);
+        z-index: 10;
+    }
+
+    .btn-remove-wishlist {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(239, 68, 68, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        z-index: 10;
+        color: #ef4444;
+        font-size: 1.2rem;
+        text-decoration: none;
+    }
+
+    .btn-remove-wishlist:hover {
+        background: #ef4444;
+        color: white;
+        border-color: #ef4444;
+        transform: scale(1.15) rotate(90deg);
+        box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+    }
+
+    .wishlist-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, rgba(15, 23, 42, 0.9) 100%);
+        display: flex;
+        align-items: flex-end;
+        padding: 24px;
+        opacity: 0;
+        transition: opacity 0.4s;
+    }
+
+    .wishlist-card:hover .wishlist-overlay {
+        opacity: 1;
+    }
+
+    .overlay-actions {
+        display: flex;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .btn-overlay {
+        flex: 1;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        text-decoration: none;
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn-quick-view {
+        background: white;
+        color: #334155;
+    }
+
+    .btn-quick-view:hover {
+        background: #f1f5f9;
+        transform: translateY(-3px);
+    }
+
+    .wishlist-info {
+        padding: 32px;
+    }
+
+    .wishlist-category {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(254, 202, 87, 0.1) 100%);
+        color: #ff6b6b;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        border: 2px solid rgba(255, 107, 107, 0.2);
+        margin-bottom: 16px;
+    }
+
+    .wishlist-name {
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 12px;
+        line-height: 1.3;
+    }
+
+    .wishlist-description {
+        color: #64748b;
+        margin-bottom: 20px;
+        line-height: 1.7;
+        font-size: 1rem;
+    }
+
+    .wishlist-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        border-top: 2px solid #f1f5f9;
+        margin-bottom: 24px;
+    }
+
+    .wishlist-price {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .wishlist-rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .wishlist-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .btn-wishlist-action {
+        flex: 1;
+        padding: 16px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 1rem;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .btn-add-cart {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 8px 24px rgba(255, 107, 107, 0.35);
+    }
+
+    .btn-add-cart:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(255, 107, 107, 0.45);
+    }
+
+    .btn-view-detail {
+        background: #f8fafc;
+        color: #334155;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-view-detail:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .empty-wishlist {
+        text-align: center;
+        padding: 100px 20px;
+        background: white;
+        border-radius: 24px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+
+    .empty-wishlist-icon {
+        font-size: 7rem;
+        margin-bottom: 32px;
+        opacity: 0.2;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .empty-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 16px;
+    }
+
+    .empty-text {
+        font-size: 1.2rem;
+        color: #64748b;
+        margin-bottom: 40px;
+        line-height: 1.6;
+    }
+    </style>
+
+    <section class="wishlist-section">
+    <div class="container">
+
+        <!-- Wishlist Header -->
+        <div class="wishlist-header">
+            <div class="wishlist-icon">❤</div>
+            <h1 class="wishlist-title">My Wishlist</h1>
+            <p class="wishlist-subtitle">
+                All your saved templates in one place
+            </p>
+        </div>
+
+        {% if wishlist_items %}
+        <!-- Wishlist Grid -->
+        <div class="wishlist-grid">
+
+            {% for item in wishlist_items %}
+            <div class="wishlist-card">
+
+                <!-- Image -->
+                <div class="wishlist-image-container">
+                    {% if item.template.thumbnail %}
+    <img src="{{ item.template.thumbnail.url }}"
+         alt="{{ item.template.name }}"
+         class="wishlist-image">
+{% else %}
+    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop"
+         alt="{{ item.template.name }}"
+         class="wishlist-image">
+{% endif %}
+
+
+
+                    <span class="wishlist-badge">
+                        {{ item.template.difficulty|title }}
+                    </span>
+
+                    <a href="{% url 'marketplace:remove_from_wishlist' item.id %}"
+                       class="btn-remove-wishlist"
+                       title="Remove">
+                        ✕
+                    </a>
+
+                    <div class="wishlist-overlay">
+                        <div class="overlay-actions">
+                            <a href="{% url 'marketplace:template_detail' item.template.slug %}"
+                               class="btn-overlay btn-quick-view">
+                                Quick View
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Details -->
+                <div class="wishlist-info">
+                    <span class="wishlist-category">
+                        {{ item.template.category.name }}
+                    </span>
+
+                    <h3 class="wishlist-name">
+                        {{ item.template.name }}
+                    </h3>
+
+                    <p class="wishlist-description">
+                        {{ item.template.short_description }}
+                    </p>
+
+                    <div class="wishlist-meta">
+                        <div class="wishlist-price">
+                            ₹{{ item.template.price }}
+                        </div>
+
+                        <div class="wishlist-rating">
+                            ⭐ {{ item.template.average_rating|default:"0.0" }}
+                        </div>
+                    </div>
+
+                    <div class="wishlist-actions">
+                        <a href="{% url 'marketplace:add_to_cart' item.template.id %}"
+                           class="btn-wishlist-action btn-add-cart">
+                            Add to Cart
+                        </a>
+
+                        <a href="{% url 'marketplace:template_detail' item.template.slug %}"
+                           class="btn-wishlist-action btn-view-detail">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+        <!-- Empty Wishlist -->
+        <div class="empty-wishlist">
+            <div class="empty-wishlist-icon">💔</div>
+            <h2 class="empty-title">Your wishlist is empty</h2>
+            <p class="empty-text">
+                Start adding templates you love.
+            </p>
+            <a href="{% url 'marketplace:home' %}" class="btn-wishlist-action btn-add-cart">
+                Explore Templates
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

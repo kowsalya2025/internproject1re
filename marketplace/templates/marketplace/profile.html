@@ -1,0 +1,309 @@
+
+<!-- ==========================================
+     PROFILE.HTML - Save as: marketplace/templates/marketplace/profile.html
+     ========================================== -->
+{% extends 'marketplace/base.html' %}
+{% load static %}
+
+{% block title %}My Profile - Vetri Market{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-section {
+        padding: 80px 0;
+    }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 40px;
+    }
+
+    .profile-sidebar {
+        position: sticky;
+        top: 104px;
+        height: fit-content;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        border: 2px solid #f1f5f9;
+        text-align: center;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: white;
+        margin: 0 auto 24px;
+        box-shadow: 0 12px 30px rgba(255, 107, 107, 0.3);
+    }
+
+    .profile-name {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .profile-email {
+        color: #64748b;
+        margin-bottom: 24px;
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 32px;
+        padding-top: 32px;
+        border-top: 2px solid #f1f5f9;
+    }
+
+    .stat-box {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .stat-label {
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .profile-content {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+    }
+
+    .content-card {
+        background: white;
+        border-radius: 24px;
+        padding: 40px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        border: 2px solid #f1f5f9;
+    }
+
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+    }
+
+    .content-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .btn-action {
+        padding: 12px 28px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+    }
+
+    .purchase-item {
+        display: flex;
+        gap: 24px;
+        padding: 24px;
+        background: #f8fafc;
+        border-radius: 16px;
+        margin-bottom: 16px;
+        transition: all 0.3s;
+    }
+
+    .purchase-item:hover {
+        background: #f1f5f9;
+    }
+
+    .purchase-image {
+        width: 120px;
+        height: 80px;
+        border-radius: 12px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .purchase-info {
+        flex: 1;
+    }
+
+    .purchase-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 8px;
+    }
+
+    .purchase-date {
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    .purchase-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .btn-download {
+        padding: 10px 24px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-download:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+    }
+
+    @media (max-width: 1024px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-sidebar {
+            position: static;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="profile-section">
+    <div class="container">
+        <div class="profile-grid">
+            <div class="profile-sidebar">
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <h2 class="profile-name">{{ user.username }}</h2>
+                    <p class="profile-email">{{ user.email }}</p>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-box">
+                            <span class="stat-number">{{ purchase_count }}</span>
+                            <span class="stat-label">Purchases</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">{{ wishlist_count }}</span>
+                            <span class="stat-label">Wishlist</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <div class="content-card">
+                    <div class="content-header">
+                        <h3 class="content-title">Recent Purchases</h3>
+                        <a href="{% url 'marketplace:my_purchases' %}" class="btn-action">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    {% if recent_purchases %}
+                        {% for purchase in recent_purchases %}
+                        <div class="purchase-item">
+                            {% if purchase.template.preview_image %}
+                            <img src="{{ purchase.template.preview_image.url }}" alt="{{ purchase.template.name }}" class="purchase-image">
+                            {% else %}
+                            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=200&fit=crop" alt="{{ purchase.template.name }}" class="purchase-image">
+                            {% endif %}
+                            
+                            <div class="purchase-info">
+                                <h4 class="purchase-name">{{ purchase.template.name }}</h4>
+                                <p class="purchase-date">Purchased on {{ purchase.purchased_at|date:"M d, Y" }}</p>
+                            </div>
+                            
+                            <div class="purchase-actions">
+    <a href="{% url 'marketplace:download_template' template_id=purchase.template.id %}" class="btn-download" target="_blank">
+        <i class="fas fa-download"></i> Download
+    </a>
+    <a href="{% url 'marketplace:template_detail' slug=purchase.template.slug %}" class="btn-action">
+        <i class="fas fa-eye"></i> Preview
+    </a>
+</div>
+
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <p style="text-align: center; color: #64748b; padding: 40px;">No purchases yet</p>
+                    {% endif %}
+                </div>
+
+                <div class="content-card">
+                    <div class="content-header">
+                        <h3 class="content-title">Account Information</h3>
+                    </div>
+                    
+                    <form method="post" action="{% url 'marketplace:update_profile' %}">
+                        {% csrf_token %}
+                        <div style="display: grid; gap: 20px;">
+                            <div>
+                                <label style="display: block; font-weight: 600; color: #334155; margin-bottom: 8px;">Bio</label>
+                                <textarea name="bio" rows="4" style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-family: 'Inter', sans-serif;">{{ profile.bio }}</textarea>
+                            </div>
+                            <div>
+                                <label style="display: block; font-weight: 600; color: #334155; margin-bottom: 8px;">Phone</label>
+                                <input type="text" name="phone" value="{{ profile.phone }}" style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-weight: 600; color: #334155; margin-bottom: 8px;">Website</label>
+                                <input type="url" name="website" value="{{ profile.website }}" style="width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0; border-radius: 10px;">
+                            </div>
+                            <button type="submit" class="btn-action" style="justify-content: center; width: fit-content;">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

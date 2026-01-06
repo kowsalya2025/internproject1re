@@ -1,0 +1,210 @@
+{% extends 'marketplace/base.html' %}
+{% load static %}
+
+{% block title %}All Themes - Vetri Market{% endblock %}
+
+{% block content %}
+<style>
+/* ===== Header ===== */
+.themes-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 60px 0;
+    color: white;
+    text-align: center;
+}
+.themes-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+/* ===== Filter Section ===== */
+.filter-section {
+    background: white;
+    padding: 30px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.category-filters {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.category-filter-btn {
+    padding: 10px 25px;
+    border: 2px solid #e2e8f0;
+    border-radius: 25px;
+    background: white;
+    color: #4a5568;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+.category-filter-btn:hover,
+.category-filter-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}
+
+/* ===== Templates Grid ===== */
+.templates-section {
+    padding: 60px 0;
+}
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+.template-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.template-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+.template-image {
+    position: relative;
+    padding-top: 75%;
+    overflow: hidden;
+    background: #e2e8f0;
+}
+.template-image img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+.template-card:hover .template-image img {
+    transform: scale(1.1);
+}
+.template-info {
+    padding: 25px;
+}
+.template-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #2d3748;
+}
+.template-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e2e8f0;
+}
+.template-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+@media (max-width: 768px) {
+    .template-grid {
+        grid-template-columns: 1fr;
+    }
+    .themes-header h1 {
+        font-size: 2rem;
+    }
+}
+</style>
+
+<!-- ===== Header ===== -->
+<div class="themes-header">
+    <div class="container">
+        <h1>Browse All Themes</h1>
+        <p style="font-size: 1.2rem; opacity: 0.9;">Find the perfect template for your project</p>
+    </div>
+</div>
+
+<!-- ===== Category Filters ===== -->
+<div class="filter-section">
+    <div class="container">
+        <div class="category-filters">
+            <a href="{% url 'marketplace:themes' %}" class="category-filter-btn {% if not current_category %}active{% endif %}">
+                All Templates
+            </a>
+            {% for category in categories %}
+                <a href="?category={{ category.slug }}" class="category-filter-btn {% if current_category == category.slug %}active{% endif %}">
+                    {{ category.name }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- ===== Templates Grid ===== -->
+<div class="templates-section">
+    <div class="container">
+        <div class="template-grid">
+            {% if templates %}
+                {% for template in templates %}
+                <div class="template-card">
+                    <a href="{% url 'marketplace:template_detail' template.slug %}">
+                        <div class="template-image">
+    <img src="{{ template.preview_image_url }}" alt="{{ template.name }}">
+</div>
+                        <div class="template-info">
+                            <h3 class="template-title">{{ template.name }}</h3>
+                            <p style="color: #718096; font-size: 0.95rem;">{{ template.short_description|truncatewords:15 }}</p>
+                            <div class="template-meta">
+                                <div class="template-price">
+                                    {% if template.is_free %}
+                                        Free
+                                    {% else %}
+                                        ₹{{ template.price }}
+                                    {% endif %}
+                                </div>
+                                <div style="color: #fbbf24;">
+                                    ⭐ {{ template.rating }}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
+                    <i class="fas fa-inbox" style="font-size: 4rem; color: #cbd5e0; margin-bottom: 20px;"></i>
+                    <h3 style="color: #2d3748; margin-bottom: 10px;">No templates found</h3>
+                    <p style="color: #718096;">Try selecting a different category</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- ===== Pagination ===== -->
+        {% if templates.has_other_pages %}
+        <div style="margin-top: 60px; text-align: center;">
+            <div style="display: inline-flex; gap: 10px;">
+                {% if templates.has_previous %}
+                <a href="?page={{ templates.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}" style="padding: 10px 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px; color: #667eea; text-decoration: none;">
+                    Previous
+                </a>
+                {% endif %}
+
+                <span style="padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px;">
+                    Page {{ templates.number }} of {{ templates.paginator.num_pages }}
+                </span>
+
+                {% if templates.has_next %}
+                <a href="?page={{ templates.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}" style="padding: 10px 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px; color: #667eea; text-decoration: none;">
+                    Next
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

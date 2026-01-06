@@ -1,0 +1,183 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ template.name }} — Restaurant</title>
+
+<!-- CSS -->
+{% if is_preview %}
+<link rel="stylesheet" href="{% static 'marketplace/restaurant/css/style.css' %}">
+{% else %}
+<link rel="stylesheet" href="assets/css/style.css">
+{% endif %}
+
+<style>
+:root { --accent:#ec4899; --dark:#0f172a; }
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f9f9f9; color:var(--dark); }
+.wrap { max-width:1100px; margin:0 auto; padding:24px; }
+.rest-header { background:#fff; border-bottom:1px solid #eee; position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; padding:12px 0; }
+.brand { font-weight:800; color:var(--accent); text-decoration:none; font-size:24px; }
+.nav { display:flex; gap:12px; }
+.nav a { text-decoration:none; color:#334155; padding:8px 10px; border-radius:8px; }
+.nav-toggle { display:none; background:none; border:none; font-size:24px; cursor:pointer; }
+.rest-hero { background: linear-gradient(135deg, var(--accent), #f472b6); color:#fff; padding:60px; border-radius:10px; margin:16px 0; text-align:center; position:relative; }
+.btn { background:var(--accent); color:#fff; padding:10px 16px; border-radius:8px; border:none; cursor:pointer; text-decoration:none; }
+.menu-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px; margin-top:24px; }
+.menu-card { background:#fff; border-radius:10px; padding:12px; box-shadow:0 6px 20px rgba(236,72,153,0.06); text-align:center; position:relative; }
+.menu-card img { width:100%; height:160px; object-fit:cover; border-radius:6px; }
+.menu-card input[type=file] { position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; border-radius:6px; }
+.menu-card h4 { margin-top:10px; }
+.menu-card p { font-weight:600; color:var(--accent); margin:6px 0; }
+.reserve { background:#fff; padding:24px; border-radius:10px; margin-top:24px; text-align:center; box-shadow:0 6px 20px rgba(0,0,0,0.05); }
+.reserve input { width:calc(50% - 12px); padding:10px; margin:6px; border-radius:6px; border:1px solid #ccc; }
+.reserve button { margin-top:10px; }
+.footer { background:#111827; color:#fff; padding:20px; border-radius:8px; margin-top:20px; text-align:center; }
+.publish-wrap { text-align:center; margin:20px; }
+@media(max-width:768px){ .nav{display:none} .nav-toggle{display:block} .reserve input{width:100%;} }
+</style>
+</head>
+<body>
+
+<header class="rest-header">
+  <div class="wrap">
+    <a class="brand" href="#">{{ template.name }}</a>
+    <nav class="nav">
+      <a href="#menu">Menu</a>
+      <a href="#reserve">Reserve</a>
+    </nav>
+    <button class="nav-toggle">☰</button>
+  </div>
+</header>
+
+<!-- Publish Button (only visible to owner) -->
+{% if user.is_authenticated and is_owner %}
+<div class="publish-wrap">
+  <form id="publishForm" method="POST" action="{% url 'marketplace:publish_user_template' template.id %}">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-success">Publish Template</button>
+  </form>
+</div>
+{% endif %}
+
+<!-- Hero Section -->
+<section class="rest-hero">
+  <div class="wrap">
+    {% if is_preview %}
+      <h1 contenteditable="true">Taste the difference</h1>
+      <p contenteditable="true" style="margin-bottom:20px;">Handmade recipes, fresh ingredients</p>
+    {% else %}
+      <div contenteditable="true">
+        <h1>Taste the difference</h1>
+        <p style="margin-bottom:20px;">Handmade recipes, fresh ingredients</p>
+      </div>
+    {% endif %}
+    <a class="btn" href="#menu">View Menu</a>
+  </div>
+</section>
+
+<!-- Menu Section -->
+<section id="menu" class="wrap menu-grid">
+  {% if products_for_export %}
+    {% for prod in products_for_export %}
+      <div class="menu-card" data-id="{{ forloop.counter0 }}">
+        <div style="position:relative;">
+          <img src="{{ prod.image_url|default:'assets/images/default.png' }}" alt="{{ prod.name }}">
+          <input type="file" accept="image/*">
+        </div>
+        <h4 contenteditable="true">{{ prod.name }}</h4>
+        <p contenteditable="true">₹{{ prod.price }}</p>
+        <button class="delete-btn">Delete</button>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="menu-card" data-id="0">
+      <div style="position:relative;">
+        <img src="assets/images/default.png" alt="Dish">
+        <input type="file" accept="image/*">
+      </div>
+      <h4 contenteditable="true">Dish Name</h4>
+      <p contenteditable="true">₹0</p>
+      <button class="delete-btn">Delete</button>
+    </div>
+  {% endif %}
+</section>
+
+<button id="add-product" class="btn" style="margin:20px;">Add Product</button>
+
+<!-- Reserve Section -->
+<section id="reserve" class="wrap reserve">
+  <h3 contenteditable="true">Reserve a table</h3>
+  <form onsubmit="alert('Reservation sent!');return false;">
+    <input placeholder="Name" required>
+    <input placeholder="Phone" required>
+    <button class="btn">Reserve</button>
+  </form>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="wrap">© 2025 {{ template.name }}</div>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  // Image upload preview
+  document.querySelectorAll('input[type=file]').forEach(input=>{
+    input.addEventListener('change', e=>{
+      const file = e.target.files[0];
+      if(file){
+        const reader = new FileReader();
+        reader.onload = () => { input.previousElementSibling.src = reader.result; };
+        reader.readAsDataURL(file);
+      }
+    });
+  });
+
+  // Delete product card
+  document.querySelectorAll('.delete-btn').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.target.closest('.menu-card').remove();
+    });
+  });
+
+  // Add new product
+  document.getElementById('add-product').addEventListener('click', ()=>{
+    const container = document.getElementById('menu');
+    const card = document.createElement('div');
+    card.className = 'menu-card';
+    card.setAttribute('data-id', Date.now());
+    card.innerHTML = `
+      <div style="position:relative;">
+        <img src="assets/images/default.png" alt="Dish">
+        <input type="file" accept="image/*">
+      </div>
+      <h4 contenteditable="true">New Dish</h4>
+      <p contenteditable="true">₹0</p>
+      <button class="delete-btn">Delete</button>
+    `;
+    container.appendChild(card);
+
+    // Attach image preview
+    card.querySelector('input[type=file]').addEventListener('change', e=>{
+      const file = e.target.files[0];
+      if(file){
+        const reader = new FileReader();
+        reader.onload = () => { e.target.previousElementSibling.src = reader.result; };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Attach delete
+    card.querySelector('.delete-btn').addEventListener('click', e=>{
+      e.target.closest('.menu-card').remove();
+    });
+  });
+
+});
+</script>
+
+</body>
+</html>

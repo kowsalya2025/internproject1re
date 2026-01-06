@@ -1,0 +1,288 @@
+{% extends 'marketplace/home.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="text-center mb-5">
+        <div class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle fa-3x mb-3"></i>
+            <h2>Payment Successful!</h2>
+            <p class="lead">Thank you for your purchase. Your templates are ready to download.</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <h3 class="mb-4">Your Purchased Templates</h3>
+            
+            {% if purchases %}
+                <div class="list-group">
+                    {% for purchase in purchases %}
+                    <div class="list-group-item {% if purchase.template.id in recent_purchase_ids %}border-success bg-light{% endif %}">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                {% if purchase.template.preview_image %}
+                                    <img src="{{ purchase.template.preview_image.url }}" 
+                                         alt="{{ purchase.template.name }}" 
+                                         class="img-fluid rounded">
+                                {% else %}
+                                    <div class="bg-secondary text-white p-4 rounded text-center">
+                                        <i class="fas fa-file-code fa-2x"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5 class="mb-1">
+                                    {{ purchase.template.name }}
+                                    {% if purchase.template.id in recent_purchase_ids %}
+                                        <span class="badge bg-success">Just Purchased</span>
+                                    {% endif %}
+                                </h5>
+                                <p class="mb-1 text-muted">{{ purchase.template.description|truncatewords:15 }}</p>
+                                <small class="text-muted">
+                                    Purchased on: {{ purchase.purchased_at|date:"M d, Y H:i" }}
+                                </small>
+                            </div>
+                            
+                            <div class="col-md-4 text-end">
+                                <!-- Preview Button (GET request) -->
+                                <a href="{% url 'marketplace:download_template' purchase.template.id %}" 
+                                   class="btn btn-outline-primary btn-sm mb-2"
+                                   target="_blank">
+                                    <i class="fas fa-eye"></i> Preview
+                                </a>
+                                
+                                <!-- Download Button (POST request) -->
+                                <form method="post" 
+                                      action="{% url 'marketplace:download_template' purchase.template.id %}" 
+                                      style="display: inline;"
+                                      class="download-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-sm mb-2 download-btn">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
+                                </form>
+                                
+                                <!-- Customize Button -->
+                                <a href="{% url 'marketplace:template_dashboard' purchase.template.id %}" 
+                                   class="btn btn-outline-secondary btn-sm mb-2 d-block">
+                                    <i class="fas fa-edit"></i> Customize
+                                </a>
+                                
+                                <!-- Advanced Download (Optional - for ecommerce templates) -->
+                                {% if purchase.template.category == 'ecommerce' %}
+                                <button type="button" 
+                                        class="btn btn-info btn-sm mb-2 d-block"
+                                        onclick="showAdvancedDownload({{ purchase.template.id }})">
+                                    <i class="fas fa-magic"></i> Custom Download
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">You haven't purchased any templates yet.</p>
+                </div>
+            {% endif %}
+
+            <div class="mt-4 text-center">
+                <a href="{% url 'marketplace:template_list' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-shopping-cart"></i> Browse More Templates
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Download Modal (Optional - for templates with customization) -->
+<div class="modal fade" id="advancedDownloadModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Customize Before Download</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Add custom products/content to your template before downloading:</p>
+                
+                <div id="products-container">
+                    <!-- Dynamic product inputs will be added here -->
+                </div>
+                
+                <button type="button" class="btn btn-secondary btn-sm mt-2" id="add-product-btn">
+                    <i class="fas fa-plus"></i> Add Product
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="download-custom-btn">
+                    <i class="fas fa-download"></i> Download with Custom Data
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .list-group-item {
+        transition: all 0.3s ease;
+    }
+    
+    .list-group-item:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .border-success {
+        border-left: 4px solid #28a745 !important;
+    }
+    
+    .download-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .btn-sm {
+        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+    }
+</style>
+
+<script>
+// Handle download form submissions with loading state
+document.querySelectorAll('.download-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        const btn = this.querySelector('.download-btn');
+        const originalHtml = btn.innerHTML;
+        
+        // Show loading state
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Preparing...';
+        
+        // Re-enable after 3 seconds (download should have started)
+        setTimeout(() => {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }, 3000);
+    });
+});
+
+// Advanced Download Modal Functionality
+let currentTemplateId = null;
+
+// Show advanced download modal
+function showAdvancedDownload(templateId) {
+    currentTemplateId = templateId;
+    document.getElementById('products-container').innerHTML = '';
+    const modal = new bootstrap.Modal(document.getElementById('advancedDownloadModal'));
+    modal.show();
+}
+
+// Add product input fields
+document.getElementById('add-product-btn')?.addEventListener('click', function() {
+    const container = document.getElementById('products-container');
+    const productDiv = document.createElement('div');
+    productDiv.className = 'card mb-3 p-3';
+    productDiv.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <input type="text" class="form-control mb-2 product-name" placeholder="Product Name">
+                <input type="number" class="form-control mb-2 product-price" placeholder="Price" step="0.01">
+            </div>
+            <div class="col-md-6">
+                <textarea class="form-control mb-2 product-desc" rows="2" placeholder="Description"></textarea>
+                <input type="file" class="form-control product-image" accept="image/*">
+            </div>
+        </div>
+        <button type="button" class="btn btn-sm btn-danger remove-product mt-2">
+            <i class="fas fa-trash"></i> Remove
+        </button>
+    `;
+    container.appendChild(productDiv);
+    
+    productDiv.querySelector('.remove-product').addEventListener('click', function() {
+        productDiv.remove();
+    });
+});
+
+// Download with custom data
+document.getElementById('download-custom-btn')?.addEventListener('click', async function() {
+    const btn = this;
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    
+    // Collect product data
+    const products = [];
+    const productCards = document.querySelectorAll('#products-container .card');
+    
+    for (const card of productCards) {
+        const name = card.querySelector('.product-name').value;
+        const price = card.querySelector('.product-price').value;
+        const desc = card.querySelector('.product-desc').value;
+        const imageFile = card.querySelector('.product-image').files[0];
+        
+        let imageData = null;
+        if (imageFile) {
+            imageData = await fileToBase64(imageFile);
+        }
+        
+        products.push({
+            name: name,
+            price: parseFloat(price) || 0,
+            description: desc,
+            image_data: imageData,
+            filename: imageFile ? imageFile.name : null
+        });
+    }
+    
+    // Send POST request with products data
+    try {
+        const response = await fetch(`/marketplace/download/${currentTemplateId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ products: products })
+        });
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `template_${currentTemplateId}.zip`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            // Close modal
+            bootstrap.Modal.getInstance(document.getElementById('advancedDownloadModal')).hide();
+        } else {
+            alert('Download failed. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred during download.');
+    }
+    
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+});
+
+// Helper function to convert file to base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+</script>
+{% endblock %}

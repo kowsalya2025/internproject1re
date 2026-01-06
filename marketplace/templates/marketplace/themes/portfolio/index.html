@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>My Portfolio</title>
+
+<style>
+:root {
+    --accent:#3b82f6;
+    --dark:#0f172a;
+    --light:#f1f5f9;
+}
+
+body {
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:var(--light);
+    color:var(--dark);
+}
+
+/* HEADER */
+header {
+    background:white;
+    padding:20px 40px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid #ddd;
+    position:sticky;
+    top:0;
+    z-index:20;
+}
+header .logo {
+    font-size:26px;
+    font-weight:800;
+    color:var(--accent);
+    text-decoration:none;
+}
+header nav a {
+    margin-left:20px;
+    text-decoration:none;
+    color:var(--dark);
+    font-weight:600;
+}
+
+/* HERO SECTION */
+.hero {
+    padding:80px 20px;
+    text-align:center;
+    max-width:800px;
+    margin:auto;
+}
+.hero h1, .hero p {
+    margin:0;
+}
+.hero h1 { font-size:42px; margin-bottom:10px; }
+.hero p { font-size:18px; color:#555; }
+
+/* PROJECT SECTION */
+.projects {
+    padding:60px 20px;
+    max-width:1100px;
+    margin:auto;
+}
+.section-title {
+    text-align:center;
+    font-size:32px;
+    font-weight:700;
+    margin-bottom:40px;
+}
+.project-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(280px,1fr));
+    gap:20px;
+}
+.project-card {
+    background:white;
+    border-radius:12px;
+    padding:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    transition:0.3s;
+    position:relative;
+}
+.project-card:hover {
+    transform:translateY(-5px);
+}
+.project-card img {
+    width:100%;
+    height:180px;
+    object-fit:cover;
+    border-radius:12px;
+    cursor:pointer;
+}
+.project-card h3, .project-card p {
+    margin:10px 0;
+}
+.btn {
+    display:inline-block;
+    margin-top:10px;
+    padding:10px 16px;
+    background:var(--accent);
+    color:white;
+    text-decoration:none;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+/* CONTACT SECTION */
+.contact {
+    padding:60px 20px;
+    max-width:800px;
+    margin:auto;
+}
+.contact-form {
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+.contact-form input,
+.contact-form textarea {
+    width:100%;
+    padding:12px;
+    margin-bottom:15px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:15px;
+}
+.contact-form button {
+    width:100%;
+    padding:14px;
+    background:var(--accent);
+    border:none;
+    color:white;
+    font-size:16px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+/* FOOTER */
+footer {
+    background:var(--dark);
+    color:white;
+    padding:20px;
+    margin-top:40px;
+    text-align:center;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+    <a href="#" class="logo" contenteditable="true">My Portfolio</a>
+    <nav>
+        <a href="#" contenteditable="true">Home</a>
+        <a href="#projects" contenteditable="true">Projects</a>
+        <a href="#contact" contenteditable="true">Contact</a>
+    </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+    <h1 contenteditable="true">Hello, I'm Selvaraj 👋</h1>
+    <p contenteditable="true">Web Developer • Designer • Create Modern & Responsive Websites</p>
+</section>
+
+<!-- PROJECTS -->
+<section class="projects" id="projects">
+    <h2 class="section-title" contenteditable="true">My Projects</h2>
+
+    <div class="project-grid">
+
+        <!-- Project 1 -->
+        <div class="project-card">
+            <img src="https://via.placeholder.com/400x250" alt="Project 1" onclick="changeImage(this)">
+            <h3 contenteditable="true">E-Commerce Website</h3>
+            <p contenteditable="true">A full-featured store with cart, checkout, and product management.</p>
+            <a href="#" class="btn" contenteditable="true">View Project</a>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="project-card">
+            <img src="https://via.placeholder.com/400x250" alt="Project 2" onclick="changeImage(this)">
+            <h3 contenteditable="true">Restaurant Website</h3>
+            <p contenteditable="true">Menu system, ordering options, and responsive homepage UI.</p>
+            <a href="#" class="btn" contenteditable="true">View Project</a>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="project-card">
+            <img src="https://via.placeholder.com/400x250" alt="Project 3" onclick="changeImage(this)">
+            <h3 contenteditable="true">Portfolio Generator Tool</h3>
+            <p contenteditable="true">A tool that lets users create and publish their own websites.</p>
+            <a href="#" class="btn" contenteditable="true">View Project</a>
+        </div>
+
+    </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+    <h2 class="section-title" contenteditable="true">Contact Me</h2>
+
+    <form class="contact-form">
+        <input type="text" placeholder="Your Name" contenteditable="true">
+        <input type="email" placeholder="Your Email" contenteditable="true">
+        <textarea rows="5" placeholder="Your Message" contenteditable="true"></textarea>
+        <button type="submit" contenteditable="true">Send Message</button>
+    </form>
+</section>
+
+<!-- FOOTER -->
+<footer contenteditable="true">
+    © 2025 My Portfolio — All Rights Reserved
+</footer>
+
+<script>
+function changeImage(img) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = event => {
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+    input.click();
+}
+</script>
+
+</body>
+</html>

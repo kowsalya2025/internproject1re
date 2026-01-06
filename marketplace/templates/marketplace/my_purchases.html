@@ -1,0 +1,147 @@
+{% extends "marketplace/base.html" %}
+
+{% block content %}
+
+<style>
+    /* ==============================
+   MY PURCHASES – PREMIUM UI
+   ============================== */
+
+.my-purchases-page {
+    animation: fadeInPage 0.6s ease-in-out;
+}
+
+.section-title {
+    font-weight: 700;
+    margin-bottom: 30px;
+    letter-spacing: 0.3px;
+}
+
+/* Card */
+.purchase-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #eaeaea;
+    height: 100%;
+    transition: all 0.35s ease;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hover Animation */
+.purchase-card:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+    border-color: #0d6efd;
+}
+
+/* Card Body */
+.purchase-card-body {
+    padding: 24px;
+    animation: slideUp 0.5s ease;
+}
+
+/* Template Name */
+.template-name {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #222;
+}
+
+/* Price */
+.template-price {
+    font-size: 16px;
+    font-weight: 500;
+    color: #198754;
+    margin-bottom: 18px;
+}
+
+/* View Button */
+.view-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #0d6efd, #084298);
+    color: #fff;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+/* Button Hover */
+.view-btn:hover {
+    background: linear-gradient(135deg, #084298, #052c65);
+    transform: translateX(4px);
+    color: #fff;
+}
+
+/* Empty State */
+.empty-state {
+    font-size: 16px;
+    color: #666;
+    margin-top: 40px;
+    text-align: center;
+}
+
+/* ==============================
+   ANIMATIONS
+   ============================== */
+
+@keyframes fadeInPage {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+</style>
+
+<div class="container mt-5 my-purchases-page">
+    <h2 class="section-title">My Purchases</h2>
+
+    {% if purchases %}
+        <div class="row">
+            {% for purchase in purchases %}
+                <div class="col-md-4 mb-4">
+                    <div class="purchase-card">
+                        <div class="purchase-card-body">
+                            <h5 class="template-name">
+                                {{ purchase.template.name }}
+                            </h5>
+
+                            <p class="template-price">
+                                ₹{{ purchase.amount }}
+                            </p>
+
+                            <a href="{% url 'marketplace:preview_template' purchase.template.slug %}"
+   class="btn view-btn">
+    View Template
+</a>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty-state">You have not purchased any templates yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
