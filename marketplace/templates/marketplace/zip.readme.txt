@@ -1,0 +1,23 @@
+{{ tpl.name }}
+====================================
+
+Description: {{ tpl.description }}
+
+Purchased by: {{ user.username }}
+Purchase date: {{ purchase.purchased_at|date:"Y-m-d H:i" }}
+
+INSTRUCTIONS:
+1) Extract this ZIP to a folder.
+2) Ensure you have Python 3 installed.
+3) Create a virtualenv:
+   python -m venv venv
+   source venv/bin/activate   # or venv\Scripts\activate on Windows
+4) pip install django
+5) python manage.py migrate
+6) python manage.py createsuperuser
+7) python manage.py runserver
+8) Open http://127.0.0.1:8000/ to view and http://127.0.0.1:8000/dashboard/edit/ to edit site (login required).
+
+Notes:
+- Remove placeholder SECRET_KEY in settings.py and generate a new one for production.
+- The project includes a dashboard for editing header, hero image, sections, and footer.

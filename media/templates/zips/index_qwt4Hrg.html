@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Store — Online Store</title>
+
+<style>
+:root {
+  --accent:#3b82f6;
+  --dark:#0f172a;
+}
+body {
+  font-family: Arial, sans-serif;
+  margin:0;
+  padding:0;
+  background:#f9f9f9;
+  color:var(--dark);
+}
+.wrap {
+  max-width:1100px;
+  margin:0 auto;
+  padding:24px;
+}
+.store-header {
+  background:#fff;
+  border-bottom:1px solid #eee;
+  position:sticky;
+  top:0;
+  z-index:20;
+  padding:12px 0;
+}
+.header-content {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 24px;
+}
+.brand {
+  font-weight:800;
+  color:var(--accent);
+  text-decoration:none;
+  font-size:24px;
+}
+.nav {
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.nav a {
+  text-decoration:none;
+  color:#334155;
+  padding:8px 10px;
+  border-radius:8px;
+}
+.cart-btn {
+  background:var(--accent);
+  color:#fff;
+  padding:8px 16px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  position:relative;
+}
+.cart-count {
+  position:absolute;
+  top:-8px;
+  right:-8px;
+  background:#ef4444;
+  color:#fff;
+  border-radius:50%;
+  width:20px;
+  height:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  font-weight:bold;
+}
+.nav-toggle {
+  display:none;
+  background:none;
+  border:none;
+  font-size:24px;
+  cursor:pointer;
+}
+.store-hero {
+  background: linear-gradient(135deg, var(--accent), #60a5fa);
+  color:#fff;
+  padding:60px;
+  border-radius:10px;
+  margin:16px 0;
+  text-align:center;
+}
+.btn {
+  background:var(--accent);
+  color:#fff;
+  padding:10px 16px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  text-decoration:none;
+  display:inline-block;
+}
+.btn-secondary {
+  background:#64748b;
+}
+.product-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:18px;
+  margin-top:24px;
+}
+.product-card {
+  background:#fff;
+  border-radius:10px;
+  padding:12px;
+  box-shadow:0 6px 20px rgba(59,130,246,0.06);
+  position:relative;
+}
+.product-card img {
+  width:100%;
+  height:200px;
+  object-fit:cover;
+  border-radius:6px;
+  background:#e2e8f0;
+}
+.product-card input[type=file] {
+  position:absolute;
+  top:12px;
+  left:12px;
+  width:calc(100% - 24px);
+  height:200px;
+  opacity:0;
+  cursor:pointer;
+  border-radius:6px;
+}
+.product-card h4 {
+  margin-top:10px;
+  font-size:16px;
+}
+.product-card .description {
+  color:#64748b;
+  font-size:14px;
+  margin:6px 0;
+}
+.product-card .price {
+  font-weight:700;
+  color:var(--accent);
+  font-size:18px;
+  margin:10px 0;
+}
+.product-actions {
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+.add-to-cart {
+  flex:1;
+}
+.delete-btn {
+  background:#ef4444;
+  color:#fff;
+  padding:8px 12px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+}
+.cart-modal {
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.5);
+  z-index:100;
+  align-items:center;
+  justify-content:center;
+}
+.cart-modal.active {
+  display:flex;
+}
+.cart-content {
+  background:#fff;
+  border-radius:12px;
+  width:90%;
+  max-width:600px;
+  max-height:80vh;
+  overflow-y:auto;
+  padding:24px;
+}
+.cart-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+  border-bottom:2px solid #eee;
+  padding-bottom:12px;
+}
+.close-cart {
+  background:none;
+  border:none;
+  font-size:28px;
+  cursor:pointer;
+  color:#64748b;
+}
+.cart-item {
+  display:flex;
+  gap:12px;
+  padding:12px;
+  border-bottom:1px solid #eee;
+  align-items:center;
+}
+.cart-item img {
+  width:80px;
+  height:80px;
+  object-fit:cover;
+  border-radius:6px;
+  background:#e2e8f0;
+}
+.cart-item-info {
+  flex:1;
+}
+.cart-item-info h5 {
+  margin:0 0 6px 0;
+}
+.cart-item-info p {
+  margin:0;
+  color:#64748b;
+  font-size:14px;
+}
+.quantity-controls {
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-top:8px;
+}
+.quantity-controls button {
+  width:28px;
+  height:28px;
+  border:1px solid #ccc;
+  background:#fff;
+  border-radius:4px;
+  cursor:pointer;
+}
+.remove-item {
+  background:#ef4444;
+  color:#fff;
+  border:none;
+  padding:6px 12px;
+  border-radius:6px;
+  cursor:pointer;
+}
+.cart-total {
+  margin-top:20px;
+  padding-top:20px;
+  border-top:2px solid #eee;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:20px;
+  font-weight:700;
+}
+.checkout-section {
+  display:none;
+  margin-top:20px;
+  padding-top:20px;
+  border-top:2px solid #eee;
+}
+.checkout-section.active {
+  display:block;
+}
+.form-group {
+  margin-bottom:16px;
+}
+.form-group label {
+  display:block;
+  margin-bottom:6px;
+  font-weight:600;
+}
+.form-group input {
+  width:100%;
+  padding:10px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  box-sizing:border-box;
+}
+.payment-methods {
+  display:flex;
+  gap:12px;
+  margin-bottom:16px;
+}
+.payment-method {
+  flex:1;
+  padding:12px;
+  border:2px solid #e2e8f0;
+  border-radius:8px;
+  cursor:pointer;
+  text-align:center;
+  transition:all 0.2s;
+}
+.payment-method.selected {
+  border-color:var(--accent);
+  background:#eff6ff;
+}
+.card-row {
+  display:flex;
+  gap:12px;
+}
+.card-row .form-group {
+  flex:1;
+}
+.footer {
+  background:#111827;
+  color:#fff;
+  padding:20px;
+  border-radius:8px;
+  margin-top:20px;
+  text-align:center;
+}
+.empty-cart {
+  text-align:center;
+  padding:40px;
+  color:#64748b;
+}
+@media(max-width:768px){
+  .nav{display:none}
+  .nav-toggle{display:block}
+  .card-row{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<header class="store-header">
+  <div class="header-content">
+    <a class="brand" href="#" contenteditable="true">My Store</a>
+    <nav class="nav">
+      <a href="#products">Products</a>
+      <a href="#about">About</a>
+    </nav>
+    <button class="cart-btn" onclick="toggleCart()">
+      🛒 Cart
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
+    <button class="nav-toggle">☰</button>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section class="store-hero">
+  <div class="wrap">
+    <h1 contenteditable="true">Welcome to Our Store</h1>
+    <p contenteditable="true" style="margin-bottom:20px;">Quality products, delivered to your door</p>
+    <a class="btn" href="#products">Shop Now</a>
+  </div>
+</section>
+
+<!-- Products Section -->
+<section id="products" class="wrap">
+  <h2>Our Products</h2>
+  <div class="product-grid" id="productGrid">
+    <div class="product-card" data-id="0">
+      <div style="position:relative;">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23e2e8f0' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%2364748b'%3EProduct Image%3C/text%3E%3C/svg%3E" alt="Product">
+        <input type="file" accept="image/*">
+      </div>
+      <h4 contenteditable="true">Wireless Headphones</h4>
+      <p class="description" contenteditable="true">Premium sound quality with noise cancellation</p>
+      <div class="price" contenteditable="true">₹2,999</div>
+      <div class="product-actions">
+        <button class="btn add-to-cart" onclick="addToCart(0)">Add to Cart</button>
+        <button class="delete-btn">Delete</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="1">
+      <div style="position:relative;">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23e2e8f0' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%2364748b'%3EProduct Image%3C/text%3E%3C/svg%3E" alt="Product">
+        <input type="file" accept="image/*">
+      </div>
+      <h4 contenteditable="true">Smart Watch</h4>
+      <p class="description" contenteditable="true">Track your fitness and stay connected</p>
+      <div class="price" contenteditable="true">₹4,499</div>
+      <div class="product-actions">
+        <button class="btn add-to-cart" onclick="addToCart(1)">Add to Cart</button>
+        <button class="delete-btn">Delete</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="2">
+      <div style="position:relative;">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23e2e8f0' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%2364748b'%3EProduct Image%3C/text%3E%3C/svg%3E" alt="Product">
+        <input type="file" accept="image/*">
+      </div>
+      <h4 contenteditable="true">Laptop Backpack</h4>
+      <p class="description" contenteditable="true">Durable and spacious with USB charging port</p>
+      <div class="price" contenteditable="true">₹1,599</div>
+      <div class="product-actions">
+        <button class="btn add-to-cart" onclick="addToCart(2)">Add to Cart</button>
+        <button class="delete-btn">Delete</button>
+      </div>
+    </div>
+
+    <div class="product-card" data-id="3">
+      <div style="position:relative;">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23e2e8f0' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%2364748b'%3EProduct Image%3C/text%3E%3C/svg%3E" alt="Product">
+        <input type="file" accept="image/*">
+      </div>
+      <h4 contenteditable="true">Phone Stand</h4>
+      <p class="description" contenteditable="true">Adjustable aluminum desk stand</p>
+      <div class="price" contenteditable="true">₹799</div>
+      <div class="product-actions">
+        <button class="btn add-to-cart" onclick="addToCart(3)">Add to Cart</button>
+        <button class="delete-btn">Delete</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<button id="add-product" class="btn" style="margin:20px;">Add Product</button>
+
+<!-- Cart Modal -->
+<div class="cart-modal" id="cartModal">
+  <div class="cart-content">
+    <div class="cart-header">
+      <h2>Shopping Cart</h2>
+      <button class="close-cart" onclick="toggleCart()">×</button>
+    </div>
+    <div id="cartItems"></div>
+    <div class="cart-total">
+      <span>Total:</span>
+      <span id="cartTotal">₹0</span>
+    </div>
+    <button class="btn" style="width:100%;margin-top:12px;" onclick="proceedToCheckout()">Proceed to Checkout</button>
+    
+    <!-- Checkout Section -->
+    <div class="checkout-section" id="checkoutSection">
+      <h3>Checkout</h3>
+      <form id="checkoutForm" onsubmit="handleCheckout(event)">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" required placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" required placeholder="john@example.com">
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="tel" required placeholder="+91 98765 43210">
+        </div>
+        <div class="form-group">
+          <label>Shipping Address</label>
+          <input type="text" required placeholder="123 Main St, City, State">
+        </div>
+        
+        <h4 style="margin-top:24px;">Payment Method</h4>
+        <div class="payment-methods">
+          <div class="payment-method selected" onclick="selectPayment('card')">
+            💳 Card
+          </div>
+          <div class="payment-method" onclick="selectPayment('upi')">
+            📱 UPI
+          </div>
+          <div class="payment-method" onclick="selectPayment('cod')">
+            💵 COD
+          </div>
+        </div>
+        
+        <div id="cardDetails">
+          <div class="form-group">
+            <label>Card Number</label>
+            <input type="text" placeholder="1234 5678 9012 3456" maxlength="19">
+          </div>
+          <div class="card-row">
+            <div class="form-group">
+              <label>Expiry Date</label>
+              <input type="text" placeholder="MM/YY" maxlength="5">
+            </div>
+            <div class="form-group">
+              <label>CVV</label>
+              <input type="text" placeholder="123" maxlength="3">
+            </div>
+          </div>
+        </div>
+        
+        <button type="submit" class="btn" style="width:100%;margin-top:20px;">Place Order</button>
+        <button type="button" class="btn btn-secondary" style="width:100%;margin-top:8px;" onclick="backToCart()">Back to Cart</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="wrap" contenteditable="true">© 2025 My Store</div>
+</footer>
+
+<script>
+let cart = [];
+let paymentMethod = 'card';
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Image upload preview
+  document.querySelectorAll('input[type=file]').forEach(input=>{
+    input.addEventListener('change', e=>{
+      const file = e.target.files[0];
+      if(file){
+        const reader = new FileReader();
+        reader.onload = () => { 
+          const img = input.previousElementSibling;
+          if(img && img.tagName === 'IMG') img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  });
+
+  // Delete product card
+  document.querySelectorAll('.delete-btn').forEach(btn=>{
+    btn.addEventListener('click', e=>{
+      e.target.closest('.product-card').remove();
+    });
+  });
+
+  // Add new product
+  document.getElementById('add-product').addEventListener('click', ()=>{
+    const container = document.getElementById('productGrid');
+    const card = document.createElement('div');
+    const newId = Date.now();
+    card.className = 'product-card';
+    card.setAttribute('data-id', newId);
+    card.innerHTML = `
+      <div style="position:relative;">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23e2e8f0' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%2364748b'%3EProduct Image%3C/text%3E%3C/svg%3E" alt="Product">
+        <input type="file" accept="image/*">
+      </div>
+      <h4 contenteditable="true">New Product</h4>
+      <p class="description" contenteditable="true">Product description</p>
+      <div class="price" contenteditable="true">₹0</div>
+      <div class="product-actions">
+        <button class="btn add-to-cart" onclick="addToCart(${newId})">Add to Cart</button>
+        <button class="delete-btn">Delete</button>
+      </div>
+    `;
+    container.appendChild(card);
+
+    // Attach image preview
+    card.querySelector('input[type=file]').addEventListener('change', e=>{
+      const file = e.target.files[0];
+      if(file){
+        const reader = new FileReader();
+        reader.onload = () => { 
+          const img = e.target.previousElementSibling;
+          if(img && img.tagName === 'IMG') img.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Attach delete
+    card.querySelector('.delete-btn').addEventListener('click', e=>{
+      e.target.closest('.product-card').remove();
+    });
+  });
+});
+
+function toggleCart() {
+  const modal = document.getElementById('cartModal');
+  modal.classList.toggle('active');
+  if(modal.classList.contains('active')) {
+    renderCart();
+  }
+}
+
+function addToCart(productId) {
+  const card = document.querySelector(`[data-id="${productId}"]`);
+  const name = card.querySelector('h4').textContent;
+  const priceText = card.querySelector('.price').textContent;
+  const price = parseFloat(priceText.replace('₹', '').replace(',', ''));
+  const image = card.querySelector('img').src;
+  
+  const existingItem = cart.find(item => item.id === productId);
+  if(existingItem) {
+    existingItem.quantity++;
+  } else {
+    cart.push({ id: productId, name, price, image, quantity: 1 });
+  }
+  
+  updateCartCount();
+  
+  // Show brief feedback
+  const btn = card.querySelector('.add-to-cart');
+  const originalText = btn.textContent;
+  btn.textContent = 'Added!';
+  btn.style.background = '#10b981';
+  setTimeout(() => {
+    btn.textContent = originalText;
+    btn.style.background = '';
+  }, 1000);
+}
+
+function updateCartCount() {
+  const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+  document.getElementById('cartCount').textContent = count;
+}
+
+function renderCart() {
+  const container = document.getElementById('cartItems');
+  
+  if(cart.length === 0) {
+    container.innerHTML = '<div class="empty-cart"><p>Your cart is empty</p></div>';
+    document.getElementById('cartTotal').textContent = '₹0';
+    return;
+  }
+  
+  container.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <img src="${item.image}" alt="${item.name}">
+      <div class="cart-item-info">
+        <h5>${item.name}</h5>
+        <p>₹${item.price}</p>
+        <div class="quantity-controls">
+          <button onclick="changeQuantity(${item.id}, -1)">−</button>
+          <span>${item.quantity}</span>
+          <button onclick="changeQuantity(${item.id}, 1)">+</button>
+        </div>
+      </div>
+      <button class="remove-item" onclick="removeItem(${item.id})">Remove</button>
+    </div>
+  `).join('');
+  
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  document.getElementById('cartTotal').textContent = `₹${total.toFixed(2)}`;
+}
+
+function changeQuantity(productId, change) {
+  const item = cart.find(i => i.id === productId);
+  if(item) {
+    item.quantity += change;
+    if(item.quantity <= 0) {
+      removeItem(productId);
+    } else {
+      renderCart();
+      updateCartCount();
+    }
+  }
+}
+
+function removeItem(productId) {
+  cart = cart.filter(item => item.id !== productId);
+  renderCart();
+  updateCartCount();
+}
+
+function proceedToCheckout() {
+  if(cart.length === 0) {
+    alert('Your cart is empty!');
+    return;
+  }
+  document.getElementById('checkoutSection').classList.add('active');
+  document.getElementById('cartItems').style.display = 'none';
+}
+
+function backToCart() {
+  document.getElementById('checkoutSection').classList.remove('active');
+  document.getElementById('cartItems').style.display = 'block';
+}
+
+function selectPayment(method) {
+  paymentMethod = method;
+  document.querySelectorAll('.payment-method').forEach(el => {
+    el.classList.remove('selected');
+  });
+  event.target.closest('.payment-method').classList.add('selected');
+  
+  const cardDetails = document.getElementById('cardDetails');
+  if(method === 'card') {
+    cardDetails.style.display = 'block';
+  } else {
+    cardDetails.style.display = 'none';
+  }
+}
+
+function handleCheckout(e) {
+  e.preventDefault();
+  
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  alert(`Order placed successfully!\n\nPayment Method: ${paymentMethod.toUpperCase()}\nTotal: ₹${total.toFixed(2)}\n\nThank you for your purchase!`);
+  
+  // Clear cart
+  cart = [];
+  updateCartCount();
+  toggleCart();
+  document.getElementById('checkoutSection').classList.remove('active');
+  document.getElementById('cartItems').style.display = 'block';
+  document.getElementById('checkoutForm').reset();
+}
+</script>
+
+</body>
+</html>

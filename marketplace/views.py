@@ -564,7 +564,7 @@ def create_order(request):
         'template_ids': template_ids,
     })
 
-
+from django.urls import reverse
 @csrf_exempt
 @login_required
 def verify_payment(request):
@@ -619,9 +619,9 @@ def verify_payment(request):
         cart_items.delete()
         
         return JsonResponse({
-            'status': 'success',
-            'redirect': '/marketplace/purchase-success/'
-        })
+    'status': 'success',
+    'redirect': reverse('marketplace:purchase-success')
+})
         
     except Exception as e:
         return JsonResponse({
