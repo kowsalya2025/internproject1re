@@ -324,9 +324,9 @@
 
                     <div class="action-buttons">
                         {% if purchased %}
-                        <a href="{% url 'marketplace:download_template' template.id %}" class="btn-action btn-primary">
-                            <i class="fas fa-download"></i> Download Template
-                        </a>
+                        <a href="{% url 'marketplace:download_from_folder' template.id %}" class="btn-action btn-primary">
+    <i class="fas fa-download"></i> Download Template
+</a>>
                         {% else %}
                             {% if user.is_authenticated %}
                                 {% if in_cart %}

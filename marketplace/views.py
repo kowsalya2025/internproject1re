@@ -665,33 +665,338 @@ def my_purchases(request):
 # =============================================
 # DOWNLOAD
 # =============================================
+import os
+import zipfile
+import mimetypes
+from django.shortcuts import get_object_or_404, redirect
+from django.http import FileResponse, HttpResponse, JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.utils import timezone
+from .models import Template, Purchase, TemplateAnalytics
+
+
+# ============================================
+# HELPER FUNCTIONS
+# ============================================
+
+def validate_zip_file(file_path):
+    """Validate if file is a valid ZIP"""
+    try:
+        with zipfile.ZipFile(file_path, 'r') as zip_ref:
+            corrupt = zip_ref.testzip()
+            if corrupt:
+                return False, f"Corrupted file in ZIP: {corrupt}"
+            return True, "Valid ZIP file"
+    except zipfile.BadZipFile:
+        return False, "Not a valid ZIP file"
+    except Exception as e:
+        return False, f"Error validating ZIP: {str(e)}"
+
+
+# ============================================
+# DOWNLOAD FUNCTIONS
+# ============================================
 
 @login_required
 def download_template(request, template_id):
-    """Download template"""
+    """Download template with ZIP validation"""
+    
     template = get_object_or_404(Template, id=template_id)
     
-    # Check purchase
-    if not Purchase.objects.filter(
-        user=request.user, 
-        template=template, 
+    # Verify purchase
+    purchase = Purchase.objects.filter(
+        user=request.user,
+        template=template,
         paid=True
-    ).exists():
+    ).first()
+    
+    if not purchase:
         messages.error(request, 'You need to purchase this template first')
         return redirect('marketplace:template_detail', slug=template.slug)
     
-    # Serve ZIP file
-    if template.zip_file:
+    # Check if zip_file exists
+    if not template.zip_file:
+        messages.error(request, 'Download file is not available for this template')
+        return redirect('marketplace:my_purchases')
+    
+    try:
+        # Get file path
+        file_path = template.zip_file.path
+        
+        # Verify file exists
+        if not os.path.exists(file_path):
+            messages.error(request, 'Download file not found. Please contact support.')
+            return redirect('marketplace:my_purchases')
+        
+        # Check file size
+        file_size = os.path.getsize(file_path)
+        if file_size == 0:
+            messages.error(request, 'Download file is empty. Please contact support.')
+            return redirect('marketplace:my_purchases')
+        
+        # CRITICAL: Validate ZIP file integrity
+        is_valid, validation_message = validate_zip_file(file_path)
+        if not is_valid:
+            messages.error(request, f'Invalid ZIP file: {validation_message}. Please contact support.')
+            print(f"INVALID ZIP: Template {template.id} - {validation_message}")
+            return redirect('marketplace:my_purchases')
+        
+        # Update download statistics
+        template.downloads += 1
+        template.save(update_fields=['downloads'])
+        
+        # Track analytics
+        today = timezone.now().date()
+        analytics, _ = TemplateAnalytics.objects.get_or_create(
+            template=template,
+            date=today
+        )
+        analytics.downloads += 1
+        analytics.save()
+        
+        # Prepare safe filename
+        safe_filename = f"{template.slug}.zip"
+        
+        # Serve file with proper headers
         response = FileResponse(
-            template.zip_file.open('rb'), 
+            open(file_path, 'rb'),
             content_type='application/zip'
         )
-        response['Content-Disposition'] = f'attachment; filename="{template.slug}.zip"'
+        response['Content-Disposition'] = f'attachment; filename="{safe_filename}"'
+        response['Content-Length'] = file_size
+        response['Content-Type'] = 'application/zip'
+        
         return response
+        
+    except AttributeError:
+        # Remote storage (S3, etc.)
+        try:
+            template.downloads += 1
+            template.save(update_fields=['downloads'])
+            
+            today = timezone.now().date()
+            analytics, _ = TemplateAnalytics.objects.get_or_create(
+                template=template,
+                date=today
+            )
+            analytics.downloads += 1
+            analytics.save()
+            
+            return redirect(template.zip_file.url)
+            
+        except Exception as e:
+            messages.error(request, f'Error accessing file: {str(e)}')
+            return redirect('marketplace:my_purchases')
     
-    messages.error(request, 'Download file not available')
-    return redirect('marketplace:my_purchases')
+    except Exception as e:
+        messages.error(request, f'Download error: {str(e)}')
+        return redirect('marketplace:my_purchases')
 
+
+@login_required
+def download_template_debug(request, template_id):
+    """Debug endpoint - shows detailed information about the ZIP file"""
+    
+    template = get_object_or_404(Template, id=template_id)
+    
+    debug_info = {
+        'template_name': template.name,
+        'template_id': template.id,
+        'template_slug': template.slug,
+        'has_zip_file': bool(template.zip_file),
+    }
+    
+    if template.zip_file:
+        debug_info['zip_file_name'] = template.zip_file.name
+        
+        try:
+            # Local file
+            file_path = template.zip_file.path
+            debug_info['file_path'] = file_path
+            debug_info['file_exists'] = os.path.exists(file_path)
+            
+            if os.path.exists(file_path):
+                debug_info['file_size'] = os.path.getsize(file_path)
+                debug_info['file_size_mb'] = round(os.path.getsize(file_path) / (1024*1024), 2)
+                debug_info['is_readable'] = os.access(file_path, os.R_OK)
+                
+                # Validate ZIP
+                is_valid, message = validate_zip_file(file_path)
+                debug_info['is_valid_zip'] = is_valid
+                debug_info['validation_message'] = message
+                
+                if is_valid:
+                    # List ZIP contents
+                    try:
+                        with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                            debug_info['file_count'] = len(zip_ref.namelist())
+                            debug_info['files_preview'] = zip_ref.namelist()[:10]
+                    except Exception as e:
+                        debug_info['zip_read_error'] = str(e)
+            else:
+                debug_info['error'] = 'File path exists in database but file not found on disk'
+                
+        except AttributeError:
+            # Remote storage
+            debug_info['storage_type'] = 'Remote (S3/Cloud Storage)'
+            try:
+                debug_info['file_url'] = template.zip_file.url
+            except Exception as e:
+                debug_info['url_error'] = str(e)
+                
+        except Exception as e:
+            debug_info['error'] = str(e)
+    else:
+        debug_info['error'] = 'No ZIP file attached to this template'
+    
+    # Check purchase status
+    debug_info['user_has_purchase'] = Purchase.objects.filter(
+        user=request.user,
+        template=template,
+        paid=True
+    ).exists()
+    
+    return JsonResponse(debug_info, json_dumps_params={'indent': 2})
+
+
+@login_required  
+def check_zip_integrity(request, template_id):
+    """Admin endpoint to check ZIP file integrity"""
+    template = get_object_or_404(Template, id=template_id)
+    
+    if not template.zip_file:
+        return JsonResponse({
+            'error': 'No ZIP file attached to this template'
+        }, status=404)
+    
+    try:
+        file_path = template.zip_file.path
+        
+        info = {
+            'template': template.name,
+            'file_path': file_path,
+            'exists': os.path.exists(file_path),
+        }
+        
+        if os.path.exists(file_path):
+            info['size'] = os.path.getsize(file_path)
+            info['size_mb'] = round(os.path.getsize(file_path) / (1024*1024), 2)
+            info['readable'] = os.access(file_path, os.R_OK)
+            
+            # Validate ZIP
+            is_valid, message = validate_zip_file(file_path)
+            info['is_valid_zip'] = is_valid
+            info['validation_message'] = message
+            
+            if is_valid:
+                with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                    info['file_count'] = len(zip_ref.namelist())
+                    info['files'] = zip_ref.namelist()[:20]
+        
+        return JsonResponse(info, json_dumps_params={'indent': 2})
+        
+    except AttributeError:
+        return JsonResponse({
+            'storage_type': 'Remote Storage',
+            'url': template.zip_file.url
+        })
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e)
+        }, status=500)
+
+
+# ============================================
+# ALTERNATIVE: Download from folder on-the-fly
+# ============================================
+
+@login_required
+def download_template_from_folder(request, template_id):
+    """Create and download ZIP from template folder on-the-fly"""
+    import shutil
+    
+    template = get_object_or_404(Template, id=template_id)
+    
+    # Verify purchase
+    if not Purchase.objects.filter(
+        user=request.user,
+        template=template,
+        paid=True
+    ).exists():
+        messages.error(request, 'Purchase required')
+        return redirect('marketplace:template_detail', slug=template.slug)
+    
+    if not template.folder_name:
+        messages.error(request, 'Template folder not configured')
+        return redirect('marketplace:my_purchases')
+    
+    try:
+        from django.conf import settings
+        
+        # CORRECT PATH for your setup
+        template_folder = os.path.join(
+            settings.BASE_DIR,
+            'marketplace',
+            'templates',
+            'marketplace',
+            'themes',
+            template.folder_name
+        )
+        
+        if not os.path.exists(template_folder):
+            messages.error(request, f'Template folder not found: {template_folder}')
+            return redirect('marketplace:my_purchases')
+        
+        # Create temporary ZIP directory
+        temp_zip_dir = os.path.join(settings.BASE_DIR, 'media', 'temp')
+        os.makedirs(temp_zip_dir, exist_ok=True)
+        temp_zip_path = os.path.join(temp_zip_dir, f'{template.slug}.zip')
+        
+        # Remove old file if exists
+        if os.path.exists(temp_zip_path):
+            os.remove(temp_zip_path)
+        
+        # Create ZIP from folder
+        shutil.make_archive(
+            temp_zip_path.replace('.zip', ''),
+            'zip',
+            template_folder
+        )
+        
+        # Validate ZIP
+        is_valid, message = validate_zip_file(temp_zip_path)
+        if not is_valid:
+            os.remove(temp_zip_path)
+            messages.error(request, f'Error creating ZIP: {message}')
+            return redirect('marketplace:my_purchases')
+        
+        # Update download statistics
+        template.downloads += 1
+        template.save(update_fields=['downloads'])
+        
+        # Track analytics
+        today = timezone.now().date()
+        analytics, _ = TemplateAnalytics.objects.get_or_create(
+            template=template,
+            date=today
+        )
+        analytics.downloads += 1
+        analytics.save()
+        
+        # Serve the file
+        response = FileResponse(
+            open(temp_zip_path, 'rb'),
+            content_type='application/zip',
+            as_attachment=True,
+            filename=f'{template.slug}.zip'
+        )
+        
+        return response
+        
+    except Exception as e:
+        messages.error(request, f'Error creating download: {str(e)}')
+        return redirect('marketplace:my_purchases')
 
 # =============================================
 # REVIEWS

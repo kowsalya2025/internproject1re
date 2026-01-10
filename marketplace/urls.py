@@ -46,4 +46,12 @@ urlpatterns = [
     # Reviews
     path('review/add/<int:template_id>/', views.add_review, name='add_review'),
     path('review/delete/<int:review_id>/', views.delete_review, name='delete_review'),
+    path('download-debug/<int:template_id>/', views.download_template_debug, name='download_debug'),
+
+    path('download/<int:template_id>/', views.download_template, name='download_template'),
+    path('download-debug/<int:template_id>/', views.download_template_debug, name='download_debug'),
+    path('check-zip/<int:template_id>/', views.check_zip_integrity, name='check_zip'),
+    
+    # Alternative: download from folder
+    path('download-folder/<int:template_id>/', views.download_template_from_folder, name='download_from_folder'),
 ]
