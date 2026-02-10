@@ -132,8 +132,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Razorpay Settings
-RAZORPAY_KEY_ID = 'rzp_test_RQh36ufMwhjnvt'
-RAZORPAY_KEY_SECRET = 'DQduQT0Wb1Ff8SV3fOufDZ1o'
+RAZORPAY_KEY_ID = 'rzp_test_S7Gomrm0Ki0LKB'
+RAZORPAY_KEY_SECRET = '5w8arO2wW6fzUWPmYvLExhj9'
 
 # Login URLs
 LOGIN_URL = 'marketplace:login'
